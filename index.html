@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Feliz cumpleaños</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,400;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="cumple.css">
+</head>
+
+<body>
+
+    <!-- Pantalla de carga: toca la pantalla para llenar el corazón -->
+    <div id="loader">
+        <h2 id="lname"></h2>
+        <p>Toca la pantalla para llenar el corazón</p>
+
+        <svg id="heartBtn" class="heartbtn" viewBox="0 0 24 24" width="130" height="130">
+            <defs>
+                <clipPath id="hc">
+                    <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 4.5 6.3 4.5c2.1 0 3.8 1.2 5.7 3.3 1.9-2.1 3.6-3.3 5.7-3.3 3.6 0 5.4 3.9 3.9 7.3C19.5 16.4 12 21 12 21z"/>
+                </clipPath>
+            </defs>
+            <rect width="24" height="24" fill="#ecd3c2" clip-path="url(#hc)"/>
+            <rect id="hfill" x="0" y="22" width="24" height="24" fill="#c0652a" clip-path="url(#hc)"/>
+            <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 4.5 6.3 4.5c2.1 0 3.8 1.2 5.7 3.3 1.9-2.1 3.6-3.3 5.7-3.3 3.6 0 5.4 3.9 3.9 7.3C19.5 16.4 12 21 12 21z" fill="none" stroke="#c0652a" stroke-width=".5"/>
+        </svg>
+
+        <span id="pct">0%</span>
+    </div>
+
+    <!-- Página principal -->
+    <main id="main">
+        <h1>Hoy es el cumpleaños<br>de mi persona favorita</h1>
+        <div class="date" id="date"></div>
+
+        <div class="polaroid" id="pol">
+            <div class="view">
+                <div class="track" id="track"></div>
+            </div>
+            <div class="dots" id="dots"></div>
+            <svg width="120" height="22" viewBox="0 0 120 22">
+                <path d="M2 3 Q60 20 118 3" stroke="#b9a89c" fill="none"/>
+                <path d="M14 8l5 10 5-8z M38 12l5 8 5-8z M62 14l5 6 5-8z M86 12l5 8 5-8z" fill="#d98a3d" opacity=".8"/>
+            </svg>
+        </div>
+
+        <div class="wave">〰</div>
+
+        <div class="env" id="env">
+            <div class="body"></div>
+            <div class="flap"></div>
+            <div class="seal">Descúbrela</div>
+        </div>
+
+        <div class="letter" id="letter">
+            <div id="text"></div>
+        </div>
+    </main>
+
+    <script>
+
+        // ====== EDITA AQUÍ ======
+        const CONFIG = {
+            nombre: "Irene",
+            fecha: "3 de febrero",
+
+            // Nombres de las fotos (en la misma carpeta que este archivo)
+            fotos: ["foto1.jpg", "foto2.jpg", "foto3.jpg"],
+
+            carta: [
+                "Irene,",
+                "Hoy es tu día y quería regalarte algo que fuera solo nuestro.",
+                "Gracias por cada risa, por cada quedada sin rumbo y por hacerme mejor persona.",
+                "Que este año te devuelva todo lo bonito que tú das.",
+                "Te quiero mucho. Feliz cumpleaños."
+            ],
+
+            firma: "Con amor, tu chico ♥",
+
+            // Foto para la sección final de la Captura 2:
+            fotoFinal: "foto_final.jpg",
+
+            // Carga: cuánto sube cada toque y cuánto baja por segundo (en %)
+            toque: 6,
+            caida: 4
+        };
+        // ========================
+
+
+        // ---------- Utilidades ----------
+        const $ = id => document.getElementById(id);
+
+
+        // ---------- Textos ----------
+        $('lname').textContent = CONFIG.nombre;
+        $('date').textContent = CONFIG.fecha;
+
+
+        // ---------- Fotos (marcadores si no hay) ----------
+        const ph = n => 'data:image/svg+xml;utf8,' + encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+                <rect width="400" height="400" fill="#e9c9b3"/>
+                <text x="200" y="205" font-size="22" font-family="Georgia" font-style="italic" fill="#a8584a" text-anchor="middle">Tu foto ${n}</text>
+            </svg>`
+        );
+
+        const fotos = CONFIG.fotos.length ? CONFIG.fotos : [ph(1), ph(2), ph(3)];
+        let cur = 0;
+
+        $('track').innerHTML = fotos.map(s => `<img src="${s}" alt="">`).join('');
+        $('dots').innerHTML = fotos.map(() => '<b></b>').join('');
+
+        function show(i) {
+            cur = (i + fotos.length) % fotos.length;
+            $('track').style.transform = `translateX(-${cur * 100}%)`;
+            [...$('dots').children].forEach((d, k) => d.className = k === cur ? 'a' : '');
+        }
+
+        show(0);
+
+
+        // ---------- Carrusel: clic, deslizar y automático ----------
+        let sx = null;
+
+        $('pol').onclick = () => show(cur + 1);
+
+        $('pol').addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
+
+        $('pol').addEventListener('touchend', e => {
+            if (sx === null) return;
+            const d = e.changedTouches[0].clientX - sx;
+            if (Math.abs(d) > 40) {
+                show(cur + (d < 0 ? 1 : -1));
+                e.preventDefault();
+            }
+            sx = null;
+        });
+
+        setInterval(() => show(cur + 1), 5000);
+
+
+        // ---------- Carta ----------
+        $('text').innerHTML =
+            CONFIG.carta.map(p => `<p style="margin:0 0 12px">${p}</p>`).join('') +
+            `<div class="sig">${CONFIG.firma}</div>`;
+
+        let opened = false;
+
+        $('env').onclick = () => {
+            if (opened) return;
+            opened = true;
+
+            $('env').classList.add('open');
+
+            setTimeout(() => {
+                $('letter').classList.add('show');
+                $('letter').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 700);
+
+            // Pétalos
+            for (let i = 0; i < 24; i++) {
+                const p = document.createElement('div');
+                p.className = 'petal';
+                p.textContent = ['♥', '✦', '❀'][i % 3];
+                p.style.cssText += `
+                    left:${Math.random() * 100}vw;
+                    font-size:${14 + Math.random() * 14}px;
+                    color:#d9454a;
+                    animation-duration:${4 + Math.random() * 4}s;
+                    animation-delay:${Math.random() * 2}s`;
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 10000);
+            }
+        };
+
+
+        // ---------- Carga: cada toque llena un poco el corazón ----------
+        const heart = $('heartBtn');
+        let n = 0;
+        let done = false;
+
+        // Dibuja el corazón según el porcentaje actual
+        function pintar() {
+            $('hfill').setAttribute('y', 22 - 19 * n / 100);
+            $('pct').textContent = Math.floor(n) + '%';
+        }
+
+        // Al llegar al 100% se abre la página
+        function terminar() {
+            done = true;
+            clearInterval(t);
+            pintar();
+            setTimeout(() => {
+                $('loader').classList.add('off');
+                $('main').classList.add('on');
+            }, 400);
+        }
+
+        $('loader').addEventListener('pointerdown', e => {
+            if (done) return;
+            e.preventDefault();
+
+            n = Math.min(100, n + CONFIG.toque);
+
+            // Animación de "latido" en cada toque
+            heart.classList.remove('pop');
+            void heart.getBoundingClientRect();
+            heart.classList.add('pop');
+
+            pintar();
+            if (n >= 100) terminar();
+        });
+
+        heart.addEventListener('animationend', e => {
+            if (e.animationName === 'pop') heart.classList.remove('pop');
+        });
+
+        // La carga baja poco a poco si dejas de tocar
+        const t = setInterval(() => {
+            if (done) return;
+            n = Math.max(0, n - CONFIG.caida * 0.04);
+            pintar();
+        }, 40);
+
+    </script>
+
+</body>
+
+</html>
