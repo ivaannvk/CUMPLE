@@ -111,8 +111,8 @@
             ],
 
             // Carga: cuánto sube cada toque y cuánto baja por segundo (en %)
-            toque: 8,
-            caida: 2
+            toque: 6,
+            caida: 4
         };
         // ========================
 
@@ -179,7 +179,7 @@
 
         // ---------- Final: brindis, foto y botón ----------
         const fin = CONFIG.cierre;
-        const fphoto = $('foto4.jpg');
+        const fphoto = $('fphoto');
 
         $('fbrindis').innerHTML = fin.brindis;
         $('fgracias').innerHTML = fin.gracias;
@@ -187,8 +187,22 @@
         $('fbtn').href = fin.foto;
         fphoto.src = fin.foto;
 
-        // Si la foto no existe, se muestra un marcador y se oculta el botón
+        // Si la foto no carga, prueba otras extensiones comunes (.jpeg, .png...)
+        const base = fin.foto.replace(/\.[^.]+$/, '');
+        const alternativas = ['.jpg', '.jpeg', '.png', '.webp', '.JPG', '.JPEG', '.PNG']
+            .map(ext => base + ext)
+            .filter(f => f !== fin.foto);
+
         fphoto.onerror = () => {
+            const siguiente = alternativas.shift();
+
+            if (siguiente) {
+                fphoto.src = siguiente;
+                $('fbtn').href = siguiente;
+                return;
+            }
+
+            // Si ninguna existe: marcador y se oculta el botón
             fphoto.onerror = null;
             fphoto.src = ph('final');
             $('fbtn').style.display = 'none';
