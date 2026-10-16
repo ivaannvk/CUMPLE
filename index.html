@@ -14,7 +14,7 @@
     <!-- Pantalla de carga: toca la pantalla para llenar el corazón -->
     <div id="loader">
         <h2 id="lname"></h2>
-        <p>Toca la pantalla para llenar el corazón</p>
+        <p id="lmsg">Toca el corazón</p>
 
         <svg id="heartBtn" class="heartbtn" viewBox="0 0 24 24" width="130" height="130">
             <defs>
@@ -57,6 +57,15 @@
         <div class="letter" id="letter">
             <div id="text"></div>
         </div>
+
+        <!-- Final: brindis, foto y botón -->
+        <section class="final" id="final">
+            <div class="toast">🥂</div>
+            <p id="fbrindis"></p>
+            <img id="fphoto" alt="">
+            <p id="fgracias"></p>
+            <a class="btn" id="fbtn" download="momento.jpg"></a>
+        </section>
     </main>
 
     <script>
@@ -79,8 +88,27 @@
 
             firma: "Con amor, tu chico ♥",
 
-            // Foto para la sección final de la Captura 2:
-            fotoFinal: "foto_final.jpg",
+            // Frase destacada al final de la carta (déjala vacía "" si no la quieres)
+            destacada: "Cada año tuyo es un capítulo nuevo, y pienso estar en todos.",
+
+            // Sección final, debajo de la carta
+            cierre: {
+                brindis: "Por muchos cumpleaños<br>más juntos",
+                gracias: "Gracias por compartir<br>tu vida conmigo",
+                foto: "foto4.jpg",
+                boton: "Guardar este momento"
+            },
+
+            // Mensajes de la pantalla de carga: [a partir de qué %, texto]
+            mensajes: [
+                [0,  "Toca el corazón"],
+                [1,  "Otra vez"],
+                [20, "Algo se está encendiendo…"],
+                [40, "Sigue, que esto se calienta"],
+                [60, "Un poquito más"],
+                [75, "No pares ahora"],
+                [90, "¡La última vez!"]
+            ],
 
             // Carga: cuánto sube cada toque y cuánto baja por segundo (en %)
             toque: 6,
@@ -143,8 +171,28 @@
 
         // ---------- Carta ----------
         $('text').innerHTML =
+            `<div class="deco">🎈 🎂 🎈</div>` +
             CONFIG.carta.map(p => `<p style="margin:0 0 12px">${p}</p>`).join('') +
+            (CONFIG.destacada ? `<div class="hl">${CONFIG.destacada}</div>` : '') +
             `<div class="sig">${CONFIG.firma}</div>`;
+
+
+        // ---------- Final: brindis, foto y botón ----------
+        const fin = CONFIG.cierre;
+        const fphoto = $('fphoto');
+
+        $('fbrindis').innerHTML = fin.brindis;
+        $('fgracias').innerHTML = fin.gracias;
+        $('fbtn').textContent = fin.boton;
+        $('fbtn').href = fin.foto;
+        fphoto.src = fin.foto;
+
+        // Si la foto no existe, se muestra un marcador y se oculta el botón
+        fphoto.onerror = () => {
+            fphoto.onerror = null;
+            fphoto.src = ph('final');
+            $('fbtn').style.display = 'none';
+        };
 
         let opened = false;
 
@@ -158,6 +206,9 @@
                 $('letter').classList.add('show');
                 $('letter').scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 700);
+
+            // Final: brindis, foto y botón
+            setTimeout(() => $('final').classList.add('show'), 2200);
 
             // Pétalos
             for (let i = 0; i < 24; i++) {
@@ -181,10 +232,18 @@
         let n = 0;
         let done = false;
 
-        // Dibuja el corazón según el porcentaje actual
+        // Texto que corresponde al porcentaje actual
+        function mensaje() {
+            let txt = CONFIG.mensajes[0][1];
+            CONFIG.mensajes.forEach(([desde, t]) => { if (n >= desde) txt = t; });
+            return txt;
+        }
+
+        // Dibuja el corazón y el mensaje según el porcentaje actual
         function pintar() {
             $('hfill').setAttribute('y', 22 - 19 * n / 100);
             $('pct').textContent = Math.floor(n) + '%';
+            $('lmsg').textContent = mensaje();
         }
 
         // Al llegar al 100% se abre la página

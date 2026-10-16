@@ -210,11 +210,75 @@ h1{
 
 .letter div{padding:26px 24px}
 
+.letter .deco{
+    text-align:center;
+    font-size:18px;
+    letter-spacing:6px;
+    padding:0 0 14px;
+    font-style:normal}
+
+.letter .hl{
+    text-align:center;
+    color:var(--acc);
+    font-size:17px;
+    line-height:1.5;
+    margin:20px 0 6px;
+    padding:14px 12px;
+    background:#f5e6c8;
+    border-radius:6px}
+
 .letter .sig{
     text-align:right;
     color:var(--acc);
     font-size:18px;
     margin-top:14px}
+
+/* ---------- Final: brindis, foto y botón ---------- */
+
+.final{
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transition:max-height 1.6s ease,opacity 1.2s}
+
+.final.show{
+    max-height:1400px;
+    opacity:1;
+    margin-top:30px}
+
+.final .toast{
+    font-size:34px;
+    font-style:normal}
+
+.final p{
+    margin:10px 0 16px;
+    font-size:16px;
+    line-height:1.5;
+    color:var(--soft)}
+
+.final img{
+    width:100%;
+    aspect-ratio:1/1;
+    object-fit:cover;
+    display:block;
+    border-radius:4px;
+    box-shadow:0 8px 24px #0002}
+
+.final img + p{margin-top:16px}
+
+.btn{
+    display:inline-block;
+    margin-top:6px;
+    padding:12px 28px;
+    border-radius:999px;
+    background:var(--acc);
+    color:#fff;
+    font-size:15px;
+    text-decoration:none;
+    box-shadow:0 4px 12px #0003;
+    -webkit-tap-highlight-color:transparent}
+
+.btn:active{transform:scale(.97)}
 
 /* ---------- Pétalos ---------- */
 
